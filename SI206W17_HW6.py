@@ -130,11 +130,11 @@ names_and_productivities = [(student[0][0], student[1]) for student in list(zip(
 ## [PROBLEM 8]
 print("\n\n***** Problem 8 *****")
 # Use the Python filter function to select the subset of programmers who have names with 5 or more characters. (i.e. ["Albert","Dinesh","Euijin"]) Your result should be an filter object that points to Student instances. Save that filter iterator in a variable called long_names.
-
+long_names = filter(lambda student: len(student.name) > 5, programmers)
 
 
 ## Then write code to cast the value of long_names to a list and save it in the variable long_names_list. 
-
+long_names_list = list(long_names)
 
 
 ## [PROBLEM 9]
@@ -143,7 +143,7 @@ print("\n\n***** Problem 9 *****")
 # Use a list comprehension to generate a LIST of just the names of those Student instances whose name is longer than their seniority (i.e., ["Albert", "Mai", "Dinesh", "Euijin"]). Assign it to a variable called names_with_not_too_much_seniority.
 
 ## Note that you can use another list you have already created for this problem.
-
+names_with_not_too_much_seniority = [student.name for student in programmers if len(student.name) > student.years_UM]
 
 
 
