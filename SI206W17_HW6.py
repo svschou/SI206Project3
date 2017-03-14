@@ -31,7 +31,8 @@ class Student():
         return this_Student.years_UM
 
     # Define the additional method here
-    
+    def write_programs(self, num = 1):
+        self.num_programs += num
 
 #### DONE WITH STUDENT CLASS DEFINITION
 
@@ -56,7 +57,11 @@ print("\n\n***** Problem 2 *****")
 ## The function should return the new list of accumulated -- mapped! -- values.
 ## HINT: you should be able to write this in 5 lines of code or fewer! 
 
-
+def personal_map(input_func, input_list):
+    mapped_values = []
+    for element in input_list:
+        mapped_values.append(input_func(element))
+    return mapped_values
 
 
 
@@ -74,7 +79,7 @@ def access_third_elem(seq):
 ## End
 
 # Write your equivalent function and assignment statement here
-
+sample_func = lambda x: x[2]
 
 ## [PROBLEM 4]
 print("\n\n***** Problem 4 *****")
@@ -86,20 +91,21 @@ programs_written = [10, 500, 20, 131, 46]
 ## End provided code
 
 # Given that provided code, write one line of code to create a zip iterator instance saved in a variable called student_tups, here:
-
+student_tups = zip(names, seniority, programs_written)
 
 # Then write a line of code to cast the iterator to a list (it should end up as a list of tuples). Save that list in a variable called student_tups_list.
-
+student_tups_list = list(student_tups)
 
 ## You can test this out with any code you like here, and similar below other problems, but make sure to comment out any code that uses up the iterator in order to pass the tests!
-    
+# print(student_tups_list)   
 
 
 ## [PROBLEM 5]
 print("\n\n***** Problem 5 *****")
 # Use a list comprehension to create a list of Student instances out of the student_tups list you just created in Problem 2, and save that list in a variable called programmers. You should make sure you pass these tests before continuing, as you'll need this list for problems later on!
-
-
+programmers = [Student(student_tup[0],student_tup[1], student_tup[2]) for student_tup in student_tups_list]
+# for name in programmers:
+#     print(name.name)
 
 ## [PROBLEM 6]
 print("\n\n***** Problem 6 *****")
@@ -107,19 +113,18 @@ print("\n\n***** Problem 6 *****")
 # A Student's programming_productivity is defined as that student's number of programs written divided by the years they have been at UMich.
 
 # Use the Python map function on the programmers list you just created, in order to create an map instance iterator of numbers representing the productivity of each student. Save the map iterator in a variable called prod_iter.
-
+prod_iter = map((lambda x: x.num_programs/x.years_UM), programmers)
 ## Write code to cast that iterator to a list. Save that list in the variable prod_list.
-
+prod_list = list(prod_iter)
 ## You may add a method to the Student class if you wish in order to do this, but you do not need to. (If you do, make sure you do not create any syntax errors that keep code/tests from running!)
-
 
 
 ## [PROBLEM 7]
 print("\n\n***** Problem 7 *****")
 # Create a list of tuples wherein each tuple has a student's name and productivity value. Save the list of tuples in a variable called names_and_productivities. To do this, you should use a list comprehension (you may also use the zip function, and you may use any variables you have already created).
-
+names_and_productivities = [(student[0][0], student[1]) for student in list(zip(student_tups_list, prod_list))]
 ## But be careful that if you use answers from previous problems, you use the LISTs you generated, so that all your tests can still pass and you avoid confusion!
-
+# print(list(zip(student_tups_list, prod_list)))
 
 
 ## [PROBLEM 8]
