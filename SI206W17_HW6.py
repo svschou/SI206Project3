@@ -58,8 +58,11 @@ print("\n\n***** Problem 2 *****")
 ## HINT: you should be able to write this in 5 lines of code or fewer! 
 
 def personal_map(input_func, input_list):
+    # create a list for new values
     mapped_values = []
+    # for each element in the original list
     for element in input_list:
+        # pass the element into the given function and append this value to the new list
         mapped_values.append(input_func(element))
     return mapped_values
 
@@ -165,7 +168,9 @@ print("\n\n***** Problem 10 *****")
 # Define readfiles (make sure to close the file reference in the right place)
 def readfiles(file_list):
     for file_name in file_list:
+        # open each file 
         file_ref = open(file_name)
+        # loop through every line 
         for line in file_ref:
             yield line
         file_ref.close()
