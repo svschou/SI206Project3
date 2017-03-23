@@ -106,7 +106,6 @@ for tweet in umsi_tweets:
 # Use the database connection to commit the changes to the database
 conn.commit()
 
-
 # You can check out whether it worked in the SQLite browser! (And with the tests.)
 
 
@@ -118,18 +117,26 @@ conn.commit()
 
 
 # Select from the database all of the TIMES the tweets you collected were posted and fetch all the tuples that contain them in to the variable tweet_posted_times.
-
+query = "SELECT time_posted from Tweets"
+cur.execute(query)
+tweet_posted_times = cur.fetchall()
+print(tweet_posted_times)
 
 # Select all of the tweets (the full rows/tuples of information) that have been retweeted MORE than 2 times, and fetch them into the variable more_than_2_rts.
-
-
+query = "SELECT * FROM Tweets WHERE retweets > 2"
+cur.execute(query)
+more_than_2_rts = cur.fetchall()
+print(more_than_2_rts)
 
 # Select all of the TEXT values of the tweets that are retweets of another account (i.e. have "RT" at the beginning of the tweet text). Save the FIRST ONE from that group of text values in the variable first_rt. Note that first_rt should contain a single string value, not a tuple.
-
+query = "SELECT tweet_text FROM Tweets WHERE instr(tweet_text, 'RT')"
+cur.execute(query)
+first_rt = cur.fetchall()[0][0]
+print(first_rt)
 
 
 # Finally, done with database stuff for a bit: write a line of code to close the cursor to the database.
-
+conn.close()
 
 
 ## [PART 3] - Processing data
