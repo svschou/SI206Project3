@@ -85,8 +85,11 @@ cur = conn.cursor()
 
 # Write code to drop the Tweets table if it exists, and create the table (so you can run the program over and over), with the correct (4) column names and appropriate types for each.
 # HINT: Remember that the time_posted column should be the TIMESTAMP data type!
+
+# clear out table if it already exists
 cur.execute('DROP TABLE IF EXISTS Tweets')
 
+# set up table and table columns
 table_spec = 'CREATE TABLE IF NOT EXISTS '
 table_spec += 'Tweets (tweet_id INTEGER, author TEXT, time_posted TIMESTAMP, tweet_text TEXT, retweets INTEGER)'
 cur.execute(table_spec)
@@ -153,11 +156,15 @@ conn.close()
 
 # If you want to challenge yourself here -- this function definition (what goes under the def statement) CAN be written in one line! Definitely, definitely fine to write it with multiple lines, too, which will be much easier and clearer.
 def get_twitter_users(input_string):
+	# find all usernames beginning with @ and only letters and underscores
 	username_list = re.findall("@[_A-z0-9]*",input_string)
+	# strip the '@' off the usernames
 	username_list = [word[1:] for word in username_list]
+	# cast list to a set
 	return(set(username_list))
 
-print(get_twitter_users("RT @um_si and @student3 are super fun"))
+# testing what this returns
+# print(get_twitter_users("RT @um_si and @student3 are super fun"))
 
 
 
