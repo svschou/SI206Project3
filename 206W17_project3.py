@@ -66,7 +66,7 @@ def get_user_tweets(user_handle):
 
 # Write an invocation to the function for the "umich" user timeline and save the result in a variable called umich_tweets:
 
-umich_tweets = get_user_tweets("umich")
+umich_tweets = get_user_tweets("umich") # list of dictionarys, each dictionary represents one tweet
 
 
 ## Task 2 - Creating database and loading data into database
@@ -100,14 +100,17 @@ umich_tweets = get_user_tweets("umich")
 ## HINT #2: You may want to go back to a structure we used in class this week to ensure that you reference the user correctly in each Tweet record.
 ## HINT #3: The users mentioned in each tweet are included in the tweet dictionary -- you don't need to do any manipulation of the Tweet text to find out which they are! Do some nested data investigation on a dictionary that represents 1 tweet to see it!
 
+# make connection to database and open cursor
 conn = sqlite3.connect('project3_tweets.db')
 cur = conn.cursor()
 
+# clear and then create a new table Tweets
 cur.execute('DROP TABLE IF EXISTS Tweets')
 table_spec = 'CREATE TABLE IF NOT EXISTS '
 table_spec += 'Tweets (tweet_id INTEGER PRIMARY KEY, text TEXT, user_id TEXT, time_posted TIMESTAMP, retweets INTEGER, FOREIGN KEY (user_id) REFERENCES Users(user_id))'
 cur.execute(table_spec)
 
+# clear and then create a new table Users
 cur.execute('DROP TABLE IF EXISTS Users')
 table_spec = 'CREATE TABLE IF NOT EXISTS '
 table_spec += 'Users (user_id TEXT PRIMARY KEY, screen_name TEXT, num_favs INTEGER, description TEXT)'
@@ -116,16 +119,27 @@ cur.execute(table_spec)
 tweet_statement = 'INSERT INTO Tweets VALUES (?, ?, ?, ?, ?)'
 user_statement = 'INSERT OR IGNORE INTO Users VALUES (?, ?, ?, ?)'
 
+# loop through list of tweets
 for tweet in umich_tweets:
+	# insert info into Tweets table
 	tweet_tup = (tweet["id"], tweet["text"], tweet["user"]["id"], tweet["created_at"], tweet["retweet_count"])
 	cur.execute(tweet_statement, tweet_tup)
+	# insert info into Users table
 	user_tup = (tweet["user"]["id"], tweet["user"]["screen_name"], tweet["user"]["favourites_count"], tweet["user"]["description"])
 	cur.execute(user_statement, user_tup)
+	# if a user was mentioned in the tweet, insert their info into Users table
 	if len(tweet["entities"]["user_mentions"]) > 0:
 		for user in tweet["entities"]["user_mentions"]:
+			# get info about each user mentioned 
 			user_results = api.get_user(user["screen_name"])
 			mentioned_tup = (user_results["id"], user_results["screen_name"], user_results["favourites_count"], user_results["description"])
 			cur.execute(user_statement, mentioned_tup)
+
+			# cache new user info
+			CACHE_DICTION[user["screen_name"]] = user_results
+			file_obj = open(CACHE_FNAME, "w")
+			file_obj.write(json.dumps(CACHE_DICTION))
+			file_obj.close()
 
 conn.commit()
 
@@ -161,21 +175,27 @@ joined_result = cur.fetchall()
 
 ## Use a set comprehension to get a set of all words (combinations of characters separated by whitespace) among the descriptions in the descriptions_fav_users list. Save the resulting set in a variable called description_words.
 
+# accumulate list of total words in all description strings
 total_word_list = []
 for description in descriptions_fav_users:
 	word_list = description.split()
 	for word in word_list:
 		total_word_list.append(word)
+# cast to a set using set comprehension		
 description_words = {word for word in total_word_list}
 
 ## Use a Counter in the collections library to find the most common character among all of the descriptions in the descriptions_fav_users list. Save that most common character in a variable called most_common_char. Break any tie alphabetically (but using a Counter will do a lot of work for you...).
 
+# create a string that includes all non-whitespace characters --> EXCLUDING SPACES
 total_description_characters = ""
 for word in total_word_list:
 	total_description_characters += word
 
-description_characters = collections.Counter(total_description_characters)
+# COUNTS ALL NON-WHITESPACE CHARACTERS
+description_characters = collections.Counter(total_description_characters) # Counter object, dictionary of counts
 # print(description_characters)
+
+# return the first most common character
 most_common_char = description_characters.most_common(1)[0][0]
 # print(most_common_char)
 
@@ -185,21 +205,17 @@ most_common_char = description_characters.most_common(1)[0][0]
 
 cur.execute("SELECT Users.screen_name, Tweets.text FROM Users INNER JOIN Tweets ON Users.user_id=Tweets.user_id")
 twitter_info_tups = cur.fetchall()
-print(twitter_info_tups)
-
-# for tup in twitter_info_tups:
-# 	print(tup[0] + ": " + tup[1])
-
-# twitter_info_diction = {tup[0]: tup[1] for tup in twitter_info_tups}
-# print(twitter_info_diction)
+# print(twitter_info_tups)
 
 twitter_info_diction = {}
+# loop through tuples returned by join statement
 for tup in twitter_info_tups:
+	# if that username not in twitter_info_diction 
 	if tup[0] not in twitter_info_diction:
-		twitter_info_diction[tup[0]] = [tup[1]]
-	else:
-		twitter_info_diction[tup[0]].append(tup[1])
-print(twitter_info_diction)
+		# loop through tuples and accumulate list of all tweets by that user
+		twitter_info_diction[tup[0]] = [x[1] for x in twitter_info_tups if x[0] == tup[0]]
+
+# print(twitter_info_diction)
 
 ### IMPORTANT: MAKE SURE TO CLOSE YOUR DATABASE CONNECTION AT THE END OF THE FILE HERE SO YOU DO NOT LOCK YOUR DATABASE (it's fixable, but it's a pain). ###
 conn.close()
